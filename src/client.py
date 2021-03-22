@@ -22,7 +22,7 @@ def printHelp():
     return
 
 def request_spdu_access():
-    pload = {"password" : "secpass123", }
+    pload = {"password" : os.environ['ARD_PASS'], }
     try:
         ret = requests.post("https://spduapi.azurewebsites.net/api/spduapi", json = pload)
 
@@ -86,12 +86,14 @@ def fake_arduino():
     # key_az = bytes("abcdefghijklmnop", "utf-8")
     key_az = bytes(os.environ['KEY_ARD'], "utf-8")
     print(key_az)
+    password = os.environ['ARD_PASS']
+    print(password)
     key_ard = base64.encodebytes(bytearray(os.urandom(16))).decode("utf-8")
     print("key bytes length: ", len(key_ard))
     print(key_ard)
     IV = bytearray(os.urandom(16))
     pload = {
-        "password": "secpass123",
+        "password": password,
         "ipAddress": local_addr,
         "key": key_ard
     }
