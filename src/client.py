@@ -24,10 +24,15 @@ def printHelp():
 def request_spdu_access():
     pload = {"password" : os.environ['ARD_PASS'], }
     try:
-        ret = requests.post("https://spduapi.azurewebsites.net/api/spduapi", json = pload)
+        ret = requests.post("http://spduapi.azurewebsites.net/api/spduapi", json = pload)
 
         print(ret)
         print(ret.content)
+
+        if ret.status_code != 200:
+            print("Could not request access.")
+            return "", ""
+
 
         reply_data_string = json.loads(ret.content)
         reply_data_json = json.loads(reply_data_string["value"])
@@ -47,6 +52,10 @@ def request_spdu_access():
 
 def change_ard_state(name, state):
     [ip, key] = request_spdu_access()
+    if not ip or not key:
+        print("Could not change state.")
+        return -1
+
     pload = {"name": name, "state": state}
     try:
         print(pload)
@@ -74,7 +83,7 @@ def change_ard_state(name, state):
         print(ret.content)
 
     except Exception as err:
-        print("Error" + err)
+        print("Error " + str(err))
 
     return 0
     
@@ -120,7 +129,7 @@ def fake_arduino():
     print("msg with IV: ")
     print(msg)
 
-    ret = requests.put("https://spduapi.azurewebsites.net/api/spduapi", 
+    ret = requests.post("http://spduapi.azurewebsites.net:80/api/spduapi", 
     # ret = requests.put("http://localhost:8071/api/spduAPI",
                         headers={"Connection": "close", "Content-Length": bytes(len(msg)), }, data = msg, timeout=10)
     print(ret)
