@@ -7,12 +7,12 @@ import base64
 import socket
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
-import random
+import pdb
 
 
 
 names = {"pc1": 0, "pc2": 1, "box1": 2, "box2": 3}
-
+api_host = "test"
 # class 
 
 
@@ -24,7 +24,8 @@ def printHelp():
 def request_spdu_access():
     pload = {"password" : os.environ['ARD_PASS'], }
     try:
-        ret = requests.post("http://spduapi.azurewebsites.net/api/spduapi", json = pload)
+        print(api_host)
+        ret = requests.post(api_host, json = pload)
 
         print(ret)
         print(ret.content)
@@ -129,9 +130,9 @@ def fake_arduino():
     print("msg with IV: ")
     print(msg)
 
-    ret = requests.post("http://spduapi.azurewebsites.net:80/api/spduapi", 
     # ret = requests.put("http://localhost:8071/api/spduAPI",
-                        headers={"Connection": "close", "Content-Length": bytes(len(msg)), }, data = msg, timeout=10)
+    print(api_host)
+    ret = requests.post(api_host, headers={"Connection": "close", "Content-Length": bytes(len(msg)), }, data = msg, timeout=10)
     print(ret)
     print(ret.content)
     ret.close()
@@ -140,9 +141,22 @@ def fake_arduino():
 
 
 def main(argv):
-    print(len(argv))
+    debug = 0
+
+    global api_host
+    api_host = "https://spduapi.azurewebsites.net/spduapi"
+    # print(len(argv))
+
+    # pdb.set_trace()
+
+    for arg in argv:
+        if arg == "-d":
+            debug = 1
+            api_host = "http://localhost:7071/spduAPI"
 
     if argv[0] == "fake":
+        if not debug:
+            api_host = "http://spduapi.azurewebsites.net/spduapi"
         fake_arduino()
     
 
@@ -160,6 +174,6 @@ def main(argv):
     
 
 if __name__ == "__main__":
-	main(sys.argv[1:])
+    main(sys.argv[1:])
 
 # %%
