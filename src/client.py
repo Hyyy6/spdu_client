@@ -52,10 +52,11 @@ def request_spdu_access():
     return ip, key
 
 def change_ard_state(name, state):
-    [ip, key] = request_spdu_access()
-    if not ip or not key:
-        print("Could not change state.")
-        return -1
+    # [ip, key] = request_spdu_access()
+    # if not ip or not key:
+    #     print("Could not change state.")
+    #     return -1
+    ip = "10.10.0.152"
 
     pload = {"name": name, "state": state}
     try:
@@ -64,20 +65,20 @@ def change_ard_state(name, state):
         print(f"msg length: {len(msg)}")
         print("msg content: " + msg)
 
-        if len(msg) % 16 != 0:
-            print("padding")
-            block_size = 16
-            msg = pad(bytes(msg, "utf-8"), block_size)
-        else:
-            print("no padding")
+        # if len(msg) % 16 != 0:
+        #     print("padding")
+        #     block_size = 16
+        #     msg = pad(bytes(msg, "utf-8"), block_size)
+        # else:
+        #     print("no padding")
         
-        IV = bytearray(os.urandom(16))
-        aes = AES.new(key, AES.MODE_CBC, IV)
-        print("IV: ")
-        print(list(IV))
-        out = aes.encrypt(msg)
-        msg = out + IV
-        print("Encrypted with IV:")
+        # IV = bytearray(os.urandom(16))
+        # aes = AES.new(key, AES.MODE_CBC, IV)
+        # print("IV: ")
+        # print(list(IV))
+        # out = aes.encrypt(msg)
+        # msg = out + IV
+        # print("Encrypted with IV:")
         print(list(msg))
         ret = requests.post("http://" + ip + ':' + "1234", data = msg)
         print(ret)
@@ -88,76 +89,76 @@ def change_ard_state(name, state):
 
     return 0
     
-def fake_arduino():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.connect(("8.8.8.8", 80))
-    local_addr = sock.getsockname()[0]
-    print(local_addr)
-    # key_az = bytes("abcdefghijklmnop", "utf-8")
-    key_az = bytes(os.environ['KEY_ARD'], "utf-8")
-    print(key_az)
-    password = os.environ['ARD_PASS']
-    print(password)
-    key_ard = base64.encodebytes(bytearray(os.urandom(16))).decode("utf-8")
-    print("key bytes length: ", len(key_ard))
-    print(key_ard)
-    IV = bytearray(os.urandom(16))
-    pload = {
-        "password": password,
-        "ipAddress": local_addr,
-        "key": key_ard
-    }
+# def fake_arduino():
+#     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#     sock.connect(("8.8.8.8", 80))
+#     local_addr = sock.getsockname()[0]
+#     print(local_addr)
+#     # key_az = bytes("abcdefghijklmnop", "utf-8")
+#     key_az = bytes(os.environ['KEY_ARD'], "utf-8")
+#     print(key_az)
+#     password = os.environ['ARD_PASS']
+#     print(password)
+#     key_ard = base64.encodebytes(bytearray(os.urandom(16))).decode("utf-8")
+#     print("key bytes length: ", len(key_ard))
+#     print(key_ard)
+#     IV = bytearray(os.urandom(16))
+#     pload = {
+#         "password": password,
+#         "ipAddress": local_addr,
+#         "key": key_ard
+#     }
 
-    print(pload)
-    msg = json.dumps(pload)
-    print(f"msg length: {len(msg)}")
-    print("msg content: " + msg)
+#     print(pload)
+#     msg = json.dumps(pload)
+#     print(f"msg length: {len(msg)}")
+#     print("msg content: " + msg)
 
-    if len(msg) % 16 != 0:
-        print("padding")
-        block_size = 16
-        msg = pad(bytes(msg, "utf-8"), block_size)
-    else:
-        print("no padding")
+#     if len(msg) % 16 != 0:
+#         print("padding")
+#         block_size = 16
+#         msg = pad(bytes(msg, "utf-8"), block_size)
+#     else:
+#         print("no padding")
 
-    aes = AES.new(key_az, AES.MODE_CBC, IV)
+#     aes = AES.new(key_az, AES.MODE_CBC, IV)
 
-    out = aes.encrypt(msg)
+#     out = aes.encrypt(msg)
 
-    print("IV: ")
-    print(IV)
-    msg = out + IV
-    print("msg with IV: ")
-    print(msg)
+#     print("IV: ")
+#     print(IV)
+#     msg = out + IV
+#     print("msg with IV: ")
+#     print(msg)
 
-    # ret = requests.put("http://localhost:8071/api/spduAPI",
-    print(api_host)
-    ret = requests.post(api_host, headers={"Connection": "close", "Content-Length": bytes(len(msg)), }, data = msg, timeout=10)
-    print(ret)
-    print(ret.content)
-    ret.close()
+#     # ret = requests.put("http://localhost:8071/api/spduAPI",
+#     print(api_host)
+#     ret = requests.post(api_host, headers={"Connection": "close", "Content-Length": bytes(len(msg)), }, data = msg, timeout=10)
+#     print(ret)
+#     print(ret.content)
+#     ret.close()
 
-    return 0
+#     return 0
 
 
 def main(argv):
-    debug = 0
+    # debug = 0
 
-    global api_host
-    api_host = "https://spduapi.azurewebsites.net/spduapi"
+    # global api_host
+    # api_host = "https://spduapi.azurewebsites.net/spduapi"
     # print(len(argv))
 
     # pdb.set_trace()
 
-    for arg in argv:
-        if arg == "-d":
-            debug = 1
-            api_host = "http://localhost:7071/spduAPI"
+    # for arg in argv:
+    #     if arg == "-d":
+    #         debug = 1
+    #         api_host = "http://localhost:7071/spduAPI"
 
-    if argv[0] == "fake":
-        if not debug:
-            api_host = "http://spduapi.azurewebsites.net/spduapi"
-        fake_arduino()
+    # if argv[0] == "fake":
+    #     if not debug:
+    #         api_host = "http://spduapi.azurewebsites.net/spduapi"
+    #     # fake_arduino()
     
 
     if len(argv) != 2:
